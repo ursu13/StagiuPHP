@@ -1,16 +1,7 @@
 <?php
 
 require_once 'common.php';
-//in loc sa verific daca sunt setate campurile, verific daca sunt setate butoanele
-if (isset($_POST['edit'])) {
-    header('Location: edit.php?id='.$_POST['edit']);
-    exit();
-}
-if (isset($_POST['delete'])) {
-    require_once 'delete.php';
-}
 
-//in cazul in care nu este niciun buton apasat, face query
 $sql = 'SELECT * FROM books';
 $stmt = $conn->prepare($sql);
 $stmt->execute();
@@ -34,8 +25,6 @@ $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </tr>
 
         <?php
-        //ca si best practice, in partea de view am folosit sintaxa alternativa de php, si in loc de echo am
-        //am folosit operatorul echivalent <?=
         foreach ($books as $value): ?>
 
         <tr>
@@ -61,8 +50,8 @@ $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?= $value['updated_at']; ?>
             </td>
             <td>
-                <button type="submit" name="edit" value=<?= $value['id'] ?>>Edit</button>
-                <button type="submit" name="delete" value=<?= $value['id'] ?>>Delete</button>
+                <a href="/edit.php?id=<?= $value['id'] ?>">Edit</a>
+                <a href="/delete.php?id=<?= $value['id'] ?>">Delete</a>
             </td>
             <?php endforeach; ?>
         </tr>

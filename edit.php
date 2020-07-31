@@ -1,5 +1,5 @@
 <?php
-//fisier cu functiile comune, in cazul asta accesul la bd
+
 require_once 'common.php';
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -9,8 +9,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $books = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 if (isset($_POST['save'])) {
-    //aici ar fi trebuit sa fac, cum am facut la create, un sanitize la input, dar astept intai
-    //parerea voastra, daca a fost ok abordarea de la create :)
     require_once 'update.php';
     exit();
 }

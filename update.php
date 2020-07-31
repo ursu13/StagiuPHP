@@ -1,22 +1,26 @@
 <?php
 
+require_once 'common.php';
 
 //verifica input.ul inainte de update in baza de date
 
-$sql = 'UPDATE books SET title = ?,author_name=?,publisher_name=?,publish_year=?,updated_at=NOW() 
-WHERE id = ?';
+$sql = 'UPDATE books SET title = :title,author_name=:author_name,publisher_name=:publisher_name
+,publish_year=:publish_year,updated_at=NOW() 
+WHERE id = :id';
 $stmt = $conn->prepare($sql);
-$stmt->execute(array($_POST['title'], $_POST['author_name'], $_POST['publisher_name'],  $_POST['publish_year'], $_POST['id']));
-?>
+$values = [
+    'id' => $_POST['id'],
+    'title' => $_POST['title'],
+    'author_name' => $_POST['author_name'],
+    'publisher_name' => $_POST['publisher_name'],
+    'publish_year' => $_POST['publish_year']
+];
 
-<html>
-<head>
-</head>
-<body>
-<h1>Product edited! </h1>
-<a href="/index.php">Go to index</a>
-</body>
-</html>
+PDOBindArray($stmt, $values);
+$stmt->execute();
+
+header('Location: /index.php');
+exit();
 
 
 

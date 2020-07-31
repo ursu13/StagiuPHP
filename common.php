@@ -9,3 +9,10 @@ try {
     header('HTTP/1.1 500 SERVER ERROR');
     exit();
 }
+function PDOBindArray(&$poStatement, &$paArray)
+{
+    foreach ($paArray as $k => $v) {
+
+        @$poStatement->bindValue(':' . $k, $v);
+    }
+}
