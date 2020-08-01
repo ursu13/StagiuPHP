@@ -1,65 +1,25 @@
 <?php
 
-require_once 'common.php';
+require "functions.php";
+require 'service'.DIRECTORY_SEPARATOR.'BookStoreService.php';
+require 'repository'.DIRECTORY_SEPARATOR.'BookStoreRepository.php';
+require "service/DatabaseConnectionService.php";
+require "model" . DIRECTORY_SEPARATOR . "Book.php";
+require "model" . DIRECTORY_SEPARATOR . "Author.php";
+require "model" . DIRECTORY_SEPARATOR . "Publisher.php";
 
-$sql = 'SELECT * FROM books';
-$stmt = $conn->prepare($sql);
-$stmt->execute();
-$books = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-<html>
-<head>
-</head>
-<body>
-<form class="form" action="index.php" method="POST">
-    <table border="1">
-        <tr>
-            <th>Id</th>
-            <th>Title</th>
-            <th>Author name</th>
-            <th>Publisher name</th>
-            <th>Publish year</th>
-            <th>Created at</th>
-            <th>Updated at</th>
+require "controller" . DIRECTORY_SEPARATOR . "BookStoreController.php";
+require "Router.php";
 
-        </tr>
+$uri = explode('?', trim($_SERVER['REQUEST_URI'], '/'))[0];
 
-        <?php
-        foreach ($books as $value): ?>
+$router = new Router();
+$router->setRoutes(require 'routes.php');
 
-        <tr>
-            <td>
-                <?= $value['id']; ?>
-            </td>
-            <td>
-                <?= $value['title']; ?>
-            </td>
-            <td>
-                <?= $value['author_name']; ?>
-            </td>
-            <td>
-                <?= $value['publisher_name']; ?>
-            </td>
-            <td>
-                <?= $value['publish_year']; ?>
-            </td>
-            <td>
-                <?= $value['created_at']; ?>
-            </td>
-            <td>
-                <?= $value['updated_at']; ?>
-            </td>
-            <td>
-                <a href="/edit.php?id=<?= $value['id'] ?>">Edit</a>
-                <a href="/delete.php?id=<?= $value['id'] ?>">Delete</a>
-            </td>
-            <?php endforeach; ?>
-        </tr>
-    </table>
-</form>
-<a href="/create.php">Create new book</a>
+try {
+    $router->direct($uri);
+} catch(Exception $exception) {
+    echo $exception;
 
-</body>
-</html>
-
-
+    require 'view/404.error.php';
+}
