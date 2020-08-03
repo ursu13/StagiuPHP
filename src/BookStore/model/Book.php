@@ -1,5 +1,6 @@
 <?php
 
+namespace BookStore\model;
 
 class Book
 {

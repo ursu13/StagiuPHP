@@ -1,4 +1,5 @@
 <?php
+namespace BookStore\router;
 
 return [
     ''       => 'BookStoreController@index',

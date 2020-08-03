@@ -1,5 +1,6 @@
 <?php
 
+namespace BookStore\service;
 
 class BookStoreService
 {
@@ -10,24 +11,24 @@ class BookStoreService
      */
     public static function sanitizeInput($values)
     {
-        if ($values['title'] == '') {
+        if ($values['title'] === '') {
             return false;
         } else {
             $values['title'] = filter_var($values['title'], FILTER_SANITIZE_STRING);
         }
-        if ($values['author_name'] == '') {
+        if ($values['author_name'] === '') {
             return false;
         } else {
             $values['author_name'] = filter_var($values['author_name'], FILTER_SANITIZE_STRING);
         }
 
-        if ($values['publisher_name'] == '') {
+        if ($values['publisher_name'] === '') {
             return false;
 
         } else {
             $values['publisher_name'] = filter_var($values['publisher_name'], FILTER_SANITIZE_STRING);
         }
-        if ($values['publish_year'] != '' && is_numeric($values['publish_year']) && ! is_float($values['publish_year'])) {
+        if ($values['publish_year'] !== '' && is_numeric($values['publish_year']) && ! is_float($values['publish_year'])) {
             $values['publish_year'] = filter_var($values['publish_year'], FILTER_SANITIZE_STRING);
         } else {
             return false;

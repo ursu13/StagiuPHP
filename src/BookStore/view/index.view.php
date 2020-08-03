@@ -1,5 +1,6 @@
 
 <?php
+
 if(isset($_GET['success'])){
     echo '<script type="text/javascript">';
     echo ' alert("'.(string)$_GET['success'].'")';  //not showing an alert box.

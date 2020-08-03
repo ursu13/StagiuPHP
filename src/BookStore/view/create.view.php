@@ -1,24 +1,6 @@
 <?php
 //TODO Custom error messages
-//if (isset($_GET['errors'])) {
-//
-//    $errorMessages = [
-//        0 => "Title required",
-//        1 => 'Author required',
-//        2 => 'Publisher required',
-//        3 => 'Publish year required'
-//    ];
-//    if ($_GET['errors'] == '0-0-0-0') {
-//        echo "Book created !";
-//    }
-//
-//    $errors = explode('-', $_GET['errors']);
-//    foreach ($errorMessages as $key => $value) {
-//        if ($errors[$key] == 1) {
-//            echo $errorMessages[$key] . '<br>';
-//        }
-//    }
-//}
+namespace BookStore\view;
 
 ?>
 <html>

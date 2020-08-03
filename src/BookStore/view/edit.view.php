@@ -1,3 +1,8 @@
+<?php
+namespace BookStore\view;
+
+?>
+
 <html>
 <head>
     <style>

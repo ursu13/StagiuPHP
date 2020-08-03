@@ -3,27 +3,43 @@
 /**
  * Aici se modifica bd-ul , cu acces dat prin controller
  */
+
+namespace BookStore\repository;
+
+use BookStore\service\DatabaseConnectionService;
+use BookStore\service\BookStoreService;
+use PDO;
+
+use BookStore\model\Book;
+
 class BookStoreRepository
 {
-    public static function getAllBooks()
+
+    public PDO $connection;
+    public DatabaseConnectionService $databaseConnectionService;
+
+
+    public function __construct()
     {
-        $connection = DatabaseConnectionService::databaseInstance();
+        $this->databaseConnectionService = new DatabaseConnectionService();
+        $this->connection                = $this->databaseConnectionService->databaseInstance();
+    }
 
+
+    public function getAllBooks()
+    {
         $sql       = 'SELECT * FROM books';
-        $statement = $connection->prepare($sql);
+        $statement = $this->connection->prepare($sql);
         $statement->execute();
-
         $books = $statement->fetchAll(PDO::FETCH_CLASS, Book::class);
 
         return $books;
     }
 
-    public static function getBookById($values)
+    public function getBookById($values)
     {
-        $connection = DatabaseConnectionService::databaseInstance();
-
         $sql       = 'SELECT * FROM books WHERE id = :id';
-        $statement = $connection->prepare($sql);
+        $statement = $this->connection->prepare($sql);
         DatabaseConnectionService::PDOBindArray($statement, $values);
         $statement->execute();
         $book = $statement->fetchAll(PDO::FETCH_CLASS, Book::class)[0];
@@ -34,15 +50,46 @@ class BookStoreRepository
         }
     }
 
-    public static function updateBook($values)
+    public function updateAuthor($authorData)
     {
-        $connection      = DatabaseConnectionService::databaseInstance();
+        $statement = $this->connection->prepare(
+            '
+            UPDATE author
+                SET
+                   name = :author_name
+
+                WHERE
+                    book_id = :book_id
+            '
+        );
+        DatabaseConnectionService::PDOBindArray($statement, $authorData);
+        $statement->execute();
+    }
+
+    public function updatePublisher($publisherData)
+    {
+        $statement = $this->connection->prepare(
+            '
+            UPDATE publisher
+                SET
+                   name = :publisher_name
+
+                WHERE
+                    book_id = :book_id
+            '
+        );
+        DatabaseConnectionService::PDOBindArray($statement, $publisherData);
+        $statement->execute();
+    }
+
+    public function updateBook($values)
+    {
         $sanitizedValues = BookStoreService::sanitizeInput($values);
 
         if ( ! $sanitizedValues) {
             return false;
         } else {
-            $statement = $connection->prepare(
+            $statement = $this->connection->prepare(
                 '
             UPDATE books
                 SET 
@@ -50,54 +97,58 @@ class BookStoreRepository
                     author_name = :author_name,
                     publisher_name = :publisher_name, 
                     publish_year = :publish_year, 
-                    updated_at = NOW()
+                    updated_at = NOW()       
                 WHERE 
                     id = :id
             '
             );
+
             DatabaseConnectionService::PDOBindArray($statement, $sanitizedValues);
             $statement->execute();
+
+            $authorData    = [
+                'book_id'     => $sanitizedValues['id'],
+                'author_name' => $sanitizedValues['author_name'],
+            ];
+            $publisherData = [
+                'book_id'        => $sanitizedValues['id'],
+                'publisher_name' => $sanitizedValues['publisher_name'],
+            ];
+            self::updateAuthor($authorData);
+            self::updatePublisher($publisherData);
+
 
             return $statement;
         }
     }
 
-    public static function deleteBookById($values)
+    public function deleteBookById($values)
     {
-        $connection = DatabaseConnectionService::databaseInstance();
-        $values     = ['id' => $_GET['id']];
-//DELETE cu join
-        $statement = $connection->prepare(
+        $values    = ['id' => $_GET['id']];
+        $statement = $this->connection->prepare(
             'DELETE books, author, publisher FROM books INNER JOIN author INNER JOIN publisher
 WHERE books.id=author.book_id AND author.book_id=publisher.book_id AND books.id = :id'
         );
-
-
         DatabaseConnectionService::PDOBindArray($statement, $values);
         $statement->execute();
 
         return $statement;
     }
 
-    public static function saveNewBook($values)
+    public function saveNewBook($values)
     {
         if ( ! BookStoreService::sanitizeInput($values)) {
             return false;
         } else {
-            $connection = DatabaseConnectionService::databaseInstance();
-            $statement  = $connection->prepare(
+            $statement = $this->connection->prepare(
                 'INSERT INTO books(title,author_name,publisher_name,publish_year,created_at) 
         VALUES (:title, :author_name, :publisher_name, :publish_year, NOW())'
             );
 
-
             DatabaseConnectionService::PDOBindArray($statement, $values);
             $statement->execute();
 
-
-            $lastGeneratedId = $connection->lastInsertId();
-
-            header('Location: /?' . $lastGeneratedId);
+            $lastGeneratedId = $this->connection->lastInsertId();
 
             $authorData    = [
                 'book_id' => $lastGeneratedId,
@@ -108,7 +159,6 @@ WHERE books.id=author.book_id AND author.book_id=publisher.book_id AND books.id 
                 'name'    => $values['publisher_name'],
             ];
 
-
             self::saveAuthor($authorData);
             self::savePublisher($publisherData);
 
@@ -117,10 +167,9 @@ WHERE books.id=author.book_id AND author.book_id=publisher.book_id AND books.id 
     }
 
 
-    public static function saveAuthor($authorData)
+    public function saveAuthor($authorData)
     {
-        $connection = DatabaseConnectionService::databaseInstance();
-        $statement  = $connection->prepare(
+        $statement = $this->connection->prepare(
             'INSERT INTO author (name,book_id) 
         VALUES (:name,:book_id)'
         );
@@ -130,10 +179,9 @@ WHERE books.id=author.book_id AND author.book_id=publisher.book_id AND books.id 
         $statement->execute();
     }
 
-    public static function savePublisher($publisherData)
+    public function savePublisher($publisherData)
     {
-        $connection = DatabaseConnectionService::databaseInstance();
-        $statement  = $connection->prepare(
+        $statement = $this->connection->prepare(
             'INSERT INTO publisher (name,book_id) 
         VALUES (:name, :book_id)'
         );

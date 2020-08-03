@@ -20,22 +20,34 @@
  *
  */
 
+namespace BookStore\controller;
+
+use BookStore\repository\BookStoreRepository;
+use BookStore\router\Functions;
 
 class BookStoreController
 {
+    public BookStoreRepository $bookStoreRepository;
+
+    public function __construct()
+    {
+        $this->bookStoreRepository = new BookStoreRepository();
+    }
+
+
     public function index()
     {
-        $books = BookStoreRepository::getAllBooks();
+        $books = $this->bookStoreRepository->getAllBooks();
         if ( ! $books) {
-            loadView('/?error=empty', ['books' => $books]);
+            Functions::loadView('/?error=empty', ['books' => $books]);
         } else {
-            loadView('index.view.php', ['books' => $books]);
+            Functions::loadView('index.view.php', ['books' => $books]);
         }
     }
 
     public function create()
     {
-        loadView('create.view.php');
+        Functions::loadView('create.view.php');
     }
 
     public function store()
@@ -48,7 +60,8 @@ class BookStoreController
 
         ];
 
-        $isCreated = BookStoreRepository::saveNewBook($values);
+//        $isCreated = BookStoreRepository::saveNewBook($values);
+        $isCreated = $this->bookStoreRepository->saveNewBook($values);
 
         if ( ! $isCreated) {
             header("Location: /?error=create");
@@ -62,12 +75,12 @@ class BookStoreController
         $values = [
             'id' => $_GET['id'],
         ];
-        $book   = BookStoreRepository::getBookById($values);
+        $book   = $this->bookStoreRepository->getBookById($values);
 
         if ( ! $book) {
-            loadView('404.error.php');
+            Functions::loadView('404.error.php');
         } else {
-            loadView('edit.view.php', ['book' => $book]);
+            Functions::loadView('edit.view.php', ['book' => $book]);
         }
     }
 
@@ -80,7 +93,7 @@ class BookStoreController
             'publisher_name' => $_POST['publisher_name'],
             'publish_year'   => $_POST['publish_year'],
         ];
-        $isUpdated = BookStoreRepository::updateBook($values);
+        $isUpdated = $this->bookStoreRepository->updateBook($values);
         if ( ! $isUpdated) {
             header("Location: /?error=update");
         } else {
@@ -91,7 +104,7 @@ class BookStoreController
     public function delete()
     {
         $values    = ['id' => $_GET['id']];
-        $isDeleted = BookStoreRepository::deleteBookById($values);
+        $isDeleted = $this->bookStoreRepository->deleteBookById($values);
         if ( ! $isDeleted) {
             header("Location: /?error=delete");
         } else {

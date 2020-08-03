@@ -1,6 +1,9 @@
 <?php
 
 
+namespace BookStore\router;
+use BookStore\controller\BookStoreController;
+
 class Router
 {
 
@@ -11,20 +14,11 @@ class Router
         $this->routes = $routes;
     }
 
-    public function setRoutes(array $routes)
-    {
-        $this->routes = $routes;
-    }
-
-    /**
-     * @param $uri
-     * @throws Exception
-     */
     public function direct($uri)
     {
         if(array_key_exists($uri, $this->routes)) {
             list($class, $method) = explode('@', $this->routes[$uri]);
-            $controller = new $class();
+            $controller = new BookStoreController();
             $controller->{$method}();
         } else {
             throw new Exception("Nu am gasit pagina");
